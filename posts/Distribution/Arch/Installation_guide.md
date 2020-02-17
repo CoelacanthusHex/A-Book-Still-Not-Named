@@ -66,7 +66,7 @@ First Post: 2020-2-17 By Coelacanthus
 ```
 # ls /sys/firmware/efi/efivars
 ```
-如果目录不存在，系统可能以 BIOS 或 CSM 模式启动，请跳转至[#BIOS启动](#BIOS启动)
+如果目录不存在，系统可能以 BIOS 或 CSM 模式启动，请跳转至[#BIOS启动](#8.BIOS启动)
 
 ## 7.UEFI启动
 
@@ -194,8 +194,8 @@ exit
 umount -R /mnt
 reboot
 ```
-如要继续安装图形界面，请跳转至[#图形界面安装](#图形界面安装)
-如要使用CN社区源与AUR，请跳转至[#CN社区源与AUR](#CN社区源与AUR)
+如要继续安装图形界面，请跳转至[#图形界面安装](#9.图形界面安装)
+如要使用CN社区源与AUR，请跳转至[#CN社区源与AUR](#10.CN社区源与AUR)
 
 ## 8.BIOS启动
 
