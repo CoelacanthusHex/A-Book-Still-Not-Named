@@ -15,9 +15,39 @@ First Post: 2020-2-17 By Coelacanthus
 
 ## 配置网络环境
 
+强烈建议使用有线网络
+
+### 有线网络
+
+家庭网络一般是动态ip，无需额外操作
+
+### 无线网络
+
+使用 `wifi-menu` ，该软件为TUI软件，根据提示操作即可
+
+**Note: 不支持同时有账号和密码的企业验证**
+
+### 检验网络连接
+
+```
+# ping baidu.com
+```
+
 ## 更新系统时间
 
+启用ntp以确保系统时间是准确的：
+```
+# timedatectl set-ntp true
+```
+
 ## 选择镜像
+
+>	文件 /etc/pacman.d/mirrorlist 定义了软件包会从哪个 镜像源 下载。在 LiveCD 启动的系统上，所有的镜像都被启用，并且在镜像被制作时，我们已经通过他们的同步情况和速度排序。  
+>	在列表中越前的镜像在下载软件包时有越高的优先权。你可以相应的修改文件 /etc/pacman.d/mirrorlist，并将地理位置最近的镜像源挪到文件的头部，同时你也应该考虑一些其他标准。
+
+以上摘自 Arch Wiki  
+
+在中国大陆，建议选择TUNA源或者USTC源
 
 ## 验证启动模式
 
@@ -34,6 +64,15 @@ First Post: 2020-2-17 By Coelacanthus
 ### 格式化并挂载分区
 
 ### 安装必须的软件包
+
+```
+pacstrap /mnt base linux linux-firmware dhclient dialog diffutils wireless_tools wpa_supplicant nano vim sudo man-db man-pages netctl
+```
+其中，`linux` 包可替换为其他内核，如：  
+*	linux: 应用了一些补丁的官方内核，最常用
+*	linux-hardened: 一个注重安全性的Linux内核，应用了一组强化补丁来减轻内核和用户空间的攻击。
+*	linux-lts: 长期支持内核
+*	linux-zen: 打了一系列优化补丁的内核
 
 ### 配置系统
 
@@ -53,7 +92,7 @@ Chroot 到新安装的系统：
 ```
 # ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ```
-运行 `hwclock` 以生成 /etc/adjtime：
+运行 `hwclock` 以生成 `/etc/adjtime`：
 ```
 # hwclock --systohc
 ```
@@ -92,9 +131,7 @@ myhostname
 ::1		localhost
 127.0.1.1	myhostname.localdomain	myhostname
 ```
-如果系统有一个永久的 IP 地址，请使用这个永久的 IP 地址而不是 127.0.1.1。
-
-对新安装的系统，需要再次设置网络，请注意，目前的 base 不含有任何网络管理工具，要安装希望使用的网络管理软件。
+系统安装完毕后，需要再次设置网络，
 
 ## BIOS启动
 
