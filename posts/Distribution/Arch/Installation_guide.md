@@ -9,7 +9,7 @@ First Post: 2020-2-17 By Coelacanthus
 所有 2019-10-06 之后未更新的教程都会导致安装失败  
 原因参见[`base` 元包替代了同名的包组并且要求安装，需要手动干预升级](https://www.archlinuxcn.org/base-group-replaced-by-mandatory-base-package-manual-intervention-required/)
 
-## 安装前的准备
+## 1.安装前的准备
 
 一般使用u盘作为安装介质
 
@@ -20,38 +20,38 @@ First Post: 2020-2-17 By Coelacanthus
 
 用软件写入u盘（win下推荐rufus，linux下使用dd即可）
 
-## 启动 LiveCD
+## 2.启动 LiveCD
 
 这个都不会你安装什么arch
 
-## 配置网络环境
+## 3.配置网络环境
 
 强烈建议使用有线网络
 
-### 有线网络
+### 3.1.有线网络
 
 家庭网络一般是动态ip，无需额外操作
 
-### 无线网络
+### 3.2.无线网络
 
 使用 `wifi-menu` ，该软件为TUI软件，根据提示操作即可
 
 **Note: 不支持同时有账号和密码的企业验证**
 
-### 检验网络连接
+### 3.3.检验网络连接
 
 ```
 # ping baidu.com
 ```
 
-## 更新系统时间
+## 4.更新系统时间
 
 启用ntp以确保系统时间是准确的：
 ```
 # timedatectl set-ntp true
 ```
 
-## 选择镜像
+## 5.选择镜像
 
 >	文件 /etc/pacman.d/mirrorlist 定义了软件包会从哪个 镜像源 下载。在 LiveCD 启动的系统上，所有的镜像都被启用，并且在镜像被制作时，我们已经通过他们的同步情况和速度排序。  
 >	在列表中越前的镜像在下载软件包时有越高的优先权。你可以相应的修改文件 /etc/pacman.d/mirrorlist，并将地理位置最近的镜像源挪到文件的头部，同时你也应该考虑一些其他标准。
@@ -60,7 +60,7 @@ First Post: 2020-2-17 By Coelacanthus
 
 在中国大陆，建议选择TUNA源或者USTC源
 
-## 验证启动模式
+## 6.验证启动模式
 
 如果以在 UEFI 主板上启用 UEFI 模式，Archiso 将会使用 systemd-boot 来 启动 Arch Linux。可以列出 efivars 目录以验证启动模式：
 ```
@@ -68,15 +68,15 @@ First Post: 2020-2-17 By Coelacanthus
 ```
 如果目录不存在，系统可能以 BIOS 或 CSM 模式启动，请跳转至[#BIOS启动](#BIOS启动)
 
-## UEFI启动
+## 7.UEFI启动
 
-### 硬盘分区
+### 7.1.硬盘分区
 
 参见[Click](https://wiki.archlinux.org/index.php/Parted_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
 
 有空补写一篇……
 
-### 格式化并挂载分区
+### 7.2.格式化并挂载分区
 
 使用mkfs格式化对应分区，不了解各种文件系统的区别的话，请无脑ext4
 ```
@@ -97,7 +97,7 @@ First Post: 2020-2-17 By Coelacanthus
 ```
 创建其他剩余的挂载点（比如 /mnt/boot）并挂载其相应的分区。
 
-### 安装必须的软件包
+### 7.3.安装必须的软件包
 
 ```
 pacstrap /mnt base linux linux-firmware dhclient dialog diffutils wireless_tools wpa_supplicant nano vim sudo man-db man-pages netctl
@@ -108,21 +108,21 @@ pacstrap /mnt base linux linux-firmware dhclient dialog diffutils wireless_tools
 *	linux-lts: 长期支持内核
 *	linux-zen: 打了一系列优化补丁的内核
 
-### 配置系统
+### 7.4.配置系统
 
-#### Fstab
+#### 7.4.1.Fstab
 用以下命令生成 `fstab` 文件 (用 -U 或 -L 选项设置 UUID 或卷标)：
 ```
 # genfstab -U /mnt >> /mnt/etc/fstab
 ```
 在执行完以上命令后，后检查一下生成的 `/mnt/etc/fstab` 文件是否正确。
 
-#### Chroot
+#### 7.4.2.Chroot
 Chroot 到新安装的系统：
 ```
 # arch-chroot /mnt
 ```
-#### 时区
+#### 7.4.3.时区
 ```
 # ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ```
@@ -132,7 +132,7 @@ Chroot 到新安装的系统：
 ```
 这个命令假定硬件时间已经被设置为 UTC时间。
 
-#### 本地化
+#### 7.4.4本地化
 本地化的程序与库若要本地化文本，都依赖 Locale，后者明确规定地域、货币、时区日期的格式、字符排列方式和其他本地化标准等等。在下面两个文件设置：`locale.gen` 与 `locale.conf`。
 
 `/etc/locale.gen` 是一个仅包含注释文档的文本文件。指定您需要的本地化类型，只需移除对应行前面的注释符号（＃）即可，建议选择带 UTF-8 的项：
@@ -150,7 +150,7 @@ zh_TW.UTF-8 UTF-8
 创建 locale.conf 并编辑 LANG 这一 变量
 警告: 不推荐在此设置任何中文 locale，会导致 TTY 乱码。
 
-#### 网络
+#### 7.4.5.网络
 
 以下的myhostname替换为你想要使用的hostname
 
@@ -170,7 +170,7 @@ myhostname
 ```
 系统安装完毕后，需要再次设置网络，
 
-#### 添加用户与设置sudo
+#### 7.4.6.添加用户与设置sudo
 ```
 useradd -m -G wheel [你想使用的用户名]
 EDITOR=nano visudo
@@ -180,7 +180,7 @@ EDITOR=nano visudo
 
 使用`passwd [用户名]`给这个用户设置密码,使用`passwd root`给root设置密码。
 
-#### 配置引导
+#### 7.4.7.配置引导
 
 本文使用`grub`
 ```
@@ -197,7 +197,7 @@ reboot
 如要继续安装图形界面，请跳转至[#图形界面安装](#图形界面安装)
 如要使用CN社区源与AUR，请跳转至[#CN社区源与AUR](#CN社区源与AUR)
 
-## BIOS启动
+## 8.BIOS启动
 
 ### 硬盘分区
 
@@ -207,18 +207,18 @@ reboot
 
 ### 配置系统
 
-## 图形界面安装
+## 9.图形界面安装
 
-### 安装中文字体
+### 9.1.安装中文字体
 
 推荐noto字体
 ```
 pacman -Syu noto-fonts-cjk
 ```
 
-### Gnome
+### 9.2.Gnome
 
-### KDE
+### 9.3.KDE
 建议最小安装
 ```
 pacman -Syu plasma kdebase sddm NetworkManager
@@ -232,15 +232,15 @@ systemctl enable sddm
 systemctl enable NetworkManager
 ```
 
-### Xfce
+### 9.4.Xfce
 
-### I3
+### 9.5.I3
 
-## CN社区源与AUR
+## 10.CN社区源与AUR
 
 重启并登入系统后
 
-### CN社区源
+### 10.1.CN社区源
 
 打开你的`/etc/pacman.conf`，然后在后面添上两行代码。
 ```
@@ -255,7 +255,7 @@ sudo pacman -Syu archlinuxcn-mirrorlist-git
 并将`/etc/pacman.conf`中的`Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch`改为`Include = /etc/pacman.d/archlinuxcn-mirrorlist`  
 在`/etc/pacman.d/archlinuxcn-mirrorlist`中取消注释你想使用的镜像
 
-### AUR 
+### 10.2.AUR 
 
 Note: 应先添加CN社区源
 ```
