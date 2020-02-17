@@ -15,6 +15,7 @@
 	3.	Wait for adding
 2.	[发行版相关](posts/Distribution)
 	1.	[Arch](posts/Distribution/Arch)
+		*	安装指南（未完成）
 	2.	[Ubuntu](posts/Distribution/Ubuntu)
 	3.	[Debian](posts/Distribution/Debian)
 	4.	[CentOS](posts/Distribution/CentOS)
