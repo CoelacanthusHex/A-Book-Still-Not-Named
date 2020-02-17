@@ -11,7 +11,18 @@ First Post: 2020-2-17 By Coelacanthus
 
 ## 安装前的准备
 
+一般使用u盘作为安装介质
+
+从archlinux官网或各镜像站下载iso镜像  
+请务必检验镜像文件完整性与签名
+
+检验方法：待填坑……
+
+用软件写入u盘（win下推荐rufus，linux下使用dd即可）
+
 ## 启动 LiveCD
+
+这个都不会你安装什么arch
 
 ## 配置网络环境
 
@@ -61,7 +72,30 @@ First Post: 2020-2-17 By Coelacanthus
 
 ### 硬盘分区
 
+参见[Click](https://wiki.archlinux.org/index.php/Parted_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
+
+有空补写一篇……
+
 ### 格式化并挂载分区
+
+使用mkfs格式化对应分区，不了解各种文件系统的区别的话，请无脑ext4
+```
+ # mkfs.ext4 /dev/sdXY
+```
+
+这是Arch对文件系统的支持情况[Click](https://wiki.archlinux.org/index.php/File_systems_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
+
+如果您创建了交换分区，使用 mkswap 将其初始化，使用 swapon 将其挂载：
+```
+ # mkswap /dev/sdXY
+ # swapon /dev/sdXY
+```
+
+将根分区挂载到 /mnt，例如：
+```
+# mount /dev/sdX1 /mnt
+```
+创建其他剩余的挂载点（比如 /mnt/boot）并挂载其相应的分区。
 
 ### 安装必须的软件包
 
@@ -117,6 +151,9 @@ zh_TW.UTF-8 UTF-8
 警告: 不推荐在此设置任何中文 locale，会导致 TTY 乱码。
 
 #### 网络
+
+以下的myhostname替换为你想要使用的hostname
+
 创建 hostname 文件:
 ```
 /etc/hostname
@@ -133,6 +170,33 @@ myhostname
 ```
 系统安装完毕后，需要再次设置网络，
 
+#### 添加用户与设置sudo
+```
+useradd -m -G wheel [你想使用的用户名]
+EDITOR=nano visudo
+```
+取消82行%wheel前的#，
+保存并退出
+
+使用`passwd [用户名]`给这个用户设置密码,使用`passwd root`给root设置密码。
+
+#### 配置引导
+
+本文使用`grub`
+```
+pacman -Syu dosfstools grub efibootmgr
+grub-install --target=x86_64-efi --efi-directory=<EFI 分区挂载点> --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+记得最后
+```
+exit
+umount -R /mnt
+reboot
+```
+如要继续安装图形界面，请跳转至[#图形界面安装](#图形界面安装)
+如要使用CN社区源与AUR，请跳转至[#CN社区源与AUR](#CN社区源与AUR)
+
 ## BIOS启动
 
 ### 硬盘分区
@@ -142,3 +206,59 @@ myhostname
 ### 安装必须的软件包
 
 ### 配置系统
+
+## 图形界面安装
+
+### 安装中文字体
+
+推荐noto字体
+```
+pacman -Syu noto-fonts-cjk
+```
+
+### Gnome
+
+### KDE
+建议最小安装
+```
+pacman -Syu plasma kdebase sddm NetworkManager
+systemctl enable sddm
+systemctl enable NetworkManager
+```
+没有强迫症的同学可以无脑
+```
+pacman -Syu kde-applications-meta sddm NetworkManager
+systemctl enable sddm
+systemctl enable NetworkManager
+```
+
+### Xfce
+
+### I3
+
+## CN社区源与AUR
+
+重启并登入系统后
+
+### CN社区源
+
+打开你的`/etc/pacman.conf`，然后在后面添上两行代码。
+```
+[archlinuxcn]
+Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
+```
+然后
+```
+sudo pacman -Syu archlinuxcn-keyring
+sudo pacman -Syu archlinuxcn-mirrorlist-git
+```
+并将`/etc/pacman.conf`中的`Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch`改为`Include = /etc/pacman.d/archlinuxcn-mirrorlist`  
+在`/etc/pacman.d/archlinuxcn-mirrorlist`中取消注释你想使用的镜像
+
+### AUR 
+
+Note: 应先添加CN社区源
+```
+sudo pacman -Syu yay
+yay --aururl "https://aur.tuna.tsinghua.edu.cn" --save
+```
