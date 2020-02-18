@@ -1,6 +1,7 @@
 # Arch 安装指南 
 
 First Post: 2020-2-17 By Coelacanthus
+Modify 0x01: 2020-2-18 UEFI by Coelacanthus & BIOS by A563748846
 
 本指南用于使用 LiveCD 的安装方法
 
@@ -22,7 +23,15 @@ First Post: 2020-2-17 By Coelacanthus
 
 ## 2.启动 LiveCD
 
-这个都不会你安装什么arch
+~~这个都不会你安装什么arch~~
+
+------------------------以上都是废话--------------------------
+
+![boot.png](https://i.loli.net/2020/02/18/gIdlMBNkQc1yhfF.png)
+
+看到这个就说明你成功的进入了live环境
+
+此时选择第一个选项正式进入
 
 ## 3.配置网络环境
 
@@ -30,7 +39,12 @@ First Post: 2020-2-17 By Coelacanthus
 
 ### 3.1.有线网络
 
-家庭网络一般是动态ip，无需额外操作
+家庭网络一般是动态ip.  
+使用指令
+```
+# dhcpcd
+```
+来自动配置ip连接网络
 
 ### 3.2.无线网络
 
@@ -43,6 +57,11 @@ First Post: 2020-2-17 By Coelacanthus
 ```
 # ping baidu.com
 ```
+看到有返回值就说明网络没问题
+
+此时按下
+
+<kdd>CTRL</kbd>+<kbd>c</kbd>
 
 ## 4.更新系统时间
 
@@ -201,11 +220,189 @@ reboot
 
 ### 硬盘分区
 
+下面对硬盘进行操作仅适用于新硬盘
+
+使用 `fdisk -l` 来查看硬盘
+
+使用`parted /dev/sdX` 来对硬盘进行格式的更改（x为你的硬盘号）
+
+![fdisk.png](https://i.loli.net/2020/02/18/DoAdJHxFTQ52EMt.png)
+
+此时进入 parted 环境
+
+使用`mklabel`指令来新建分区表
+
+随后parted询问您分区表格式
+
+我们输入msdos
+
+![msdos.png](https://i.loli.net/2020/02/18/SZkJ9a4Qq6hofFB.png)
+
+最后quit退出
+
+使用cfdisk来分区
+
+这里稍微有一点图形界面的意思但是前路漫长
+
+1.  先new一个大的分区给我们用
+
+2.  在new一个小分区作为swap（可有可无）
+
+3.  将小分区的type改为如图
+
+4.  ![type.png](https://i.loli.net/2020/02/18/jouQeDyts79X24K.png)
+
+5.  成果如图
+
+6.  ![type2.png](https://i.loli.net/2020/02/18/jAYd5tuc6Nvm9FH.png)
+
+7.  把大分区的bootable打开
+
+8.  选择write
+
+9.  输入yes来确定
+
+10. 选择quit退出
+
+接下来你们愉快的有图形界面的部分就过去了
+
 ### 格式化并挂载分区
 
+接下来格式化分区
+```
+mkfs.ext4 /dev/sdXn（sdXn选择大分区）、
+```
+再格式化swap如果有
+```
+mkswap /dev/sdX2（小分区）
+```
+再打开swap如果有
+```
+swapon /dev/sdX2 （小分区）
+```
+到此我们对硬盘的操作完成
+
+接下来挂载分区
+```
+mount /dev/sdXn /mnt（sdXn为大分区）
+```
 ### 安装必须的软件包
 
+接下来进行linux的安装
+```
+pacstrap /mnt base linux linux-firmware base-devel
+```
+来安装linux及其拓展
+
 ### 配置系统
+
+接下来配置我们的系统
+
+使用 `genfstab -U /mnt >> /mnt/etc/fstab` 来配置
+
+官方强烈建议我们检查fatab是否生成正确不过向我这种md5都不校验的人是不会去管那个的
+
+能走到这一步的人以及成功了大半
+
+加油！！！！！！！！！！！
+
+接下来就让我们进入chroot环境
+
+警告进入chroot后任何的失误都会影响你的系统本体
+
+不过也就是多练习两遍的事
+
+使用 `arch-chroot /mnt` 进入chroot环境
+
+接下来开始设置时区
+
+使用 `ln -sf /usr/share/zoneinfo/Region/City /etc/localtime` 来设置
+
+以上海为例
+```
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+```
+运行 hwclock(8) 以生成 /etc/adjtime
+```
+hwclock –systohc
+```
+下一步我们进行本地化
+
+首先运行 `pacman -S vim` 来安装一个我们熟悉的vim
+
+这里有涉及到一点点vim所有我再废话两句吧
+
+1.  只有一条按下 x 剪切单个字符
+
+2.  按下I 进行插入（说白了就是编辑以后会用到）
+
+3.  没了，多学习vim以后还会有用的
+
+运行 `vim /etc/locale.gen` 打开有关本地化的文件
+
+用我们之前学会的vim操作找到
+```
+en_US.UTF-8 UTF-8
+zh_CN.UTF-8 UTF-8
+zh_TW.UTF-8 UTF-8
+```
+并用x移除他们前面的 `#`
+
+紧接着运行 `locale-gen` 以生成 locale 讯息
+
+运行 `vim /etc/locale.conf` 以创建新的文件
+
+按下i编辑
+
+输入
+```
+LANG=en_US.UTF-8
+```
+（注意大小写）
+
+这就添加了英语，官方不建议在此时添加中文防止乱码
+
+接下来运行 `password root` 来更改root的密码输入密码的时候不会显示放心输入就好
+
+引导程序配置（以grub为例）
+
+这时Linux安装的最后一步也是决定成败的一步
+
+首先运行 `pacman -S grub` 来安装grub作为引导
+
+运行
+```
+grub-install --target=i386-pc /dev/sdX （其中sdX为你系统所在的硬盘后面没有123。。。）
+```
+随后生成主配置文件
+```
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+如果是官方的话该叫你重启了
+
+但是我的电脑重启了是连不上网的
+
+所以再装一个软件 这个软件以后在安装deepin的桌面环境会有用
+```
+pacman -S networkmanager
+```
+此时就可以放心重启了
+
+输入 exit 或按 Ctrl+d 退出 chroot 环境。
+
+可选用 `umount -R /mnt` 手动卸载被挂载的分区：这有助于发现任何「繁忙」的分区，并通过 fuser(1) 查找原因。
+
+最后，通过执行 reboot 重启系统，systemd 将自动卸载仍然挂载的任何分区。不要忘记移除安装介质，然后使用 root
+帐户登录到新系统。
+
+再次进入系统后运行
+```
+# systemctl start NetworkManager
+```
+（注意大小写）
+
+之后 `ping www.bing.com` 试试网络
+
 
 ## 9.图形界面安装
 
@@ -221,13 +418,13 @@ pacman -Syu noto-fonts-cjk
 ### 9.3.KDE
 建议最小安装
 ```
-pacman -Syu plasma kdebase sddm NetworkManager
+pacman -Syu plasma kdebase sddm networkmanager
 systemctl enable sddm
 systemctl enable NetworkManager
 ```
 没有强迫症的同学可以无脑
 ```
-pacman -Syu kde-applications-meta sddm NetworkManager
+pacman -Syu kde-applications-meta sddm networkmanager
 systemctl enable sddm
 systemctl enable NetworkManager
 ```
@@ -259,6 +456,6 @@ sudo pacman -Syu archlinuxcn-mirrorlist-git
 
 Note: 应先添加CN社区源
 ```
-sudo pacman -Syu yay
+sudo pacman -Syu yay base-devel
 yay --aururl "https://aur.tuna.tsinghua.edu.cn" --save
 ```
